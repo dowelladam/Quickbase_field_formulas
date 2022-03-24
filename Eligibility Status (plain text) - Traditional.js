@@ -56,18 +56,63 @@ var text semesterEligibilityMS = If(
 
 //////////////////// Academics
 
-// Temporary overwrite for covid-19 grading policies
-// Beginning in 2nd semester 2020, DCPS is only displaying grades of A, B, P, or I on report cards. Under this grading scheme, all students will be academically eligible (MS, HS, and OL) despite conflicting data that may be available in Aspen. See here for more details: "https://dcpsreopenstrong.com/resources/grading/"
+// Determines which term's grades should be evaluated based on the current date.
+// Values below are based mark entry deadlines for SY21-22
+// QB generally looks at a new term two weeks after the end-of-term date
+// Term 4 = Jul 1 - Nov 19
+// Term 1 = Nov 20 - Feb 9
+// Term 2 = Feb 10 - May 2
+// Term 3 = May 3 - Jun 30
+var text currentTerm = If(
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=19, "Term 4",
+  Month(Today())=11 and Day(Today())>=20 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=9, "Term 1",
+  Month(Today())=2 and Day(Today())>=10 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=2, "Term 2",
+  Month(Today())=5 and Day(Today())>=3 or Month(Today())=6, "Term 3");
+
+// Check for academic eligibility.
+// HS: Students with a value of null/NA will be determined academically eligible. This is because Aspen typically does not calculate grades from prior schools into the GPA fields until after the student's first full term in DCPS. Any students in the beginning of their first year of HS will be determined academically eligible. This is also necessary in 2021-22 because students may have final term grades of only "P" which means that no GPA can be calculated, but the student should be academically eligible.
+// MS: Students will determine by the numeric count fields of [# of Fs]. Students must have 1 of fewer F's to be academically eligible.
+// OL: Students must have no F's on prior report card
+
+var bool gpaNullsInCurrentTerm = If(
+  $currentTerm="Term 1" and IsNull([GPA - Term 1]), true,
+  $currentTerm="Term 2" and IsNull([GPA - Term 2]), true,
+  $currentTerm="Term 3" and IsNull([GPA - Term 3]), true,
+  $currentTerm="Term 4" and IsNull([GPA - Term 4]), true,
+  $currentTerm="Term 4" and IsNull([GPA - Full Year]), true,
+  false);
 
 var bool academicOverride = If(
-  [Override - Grades]=true and [Override - Grades - Expiration Date]>=Today(), true);
+  [Override - Grades]=true and [Override - Grades - Expiration Date]>=Today(), true
+);
 
-var bool academicOverrideOL = If(
-  [Override - Grades (OL)]=true and [Override - Grades (OL) - Expiration Date]>=Today(), true);
+var bool academicEligibilityHS = If(
+  $academicOverride=true, true,
+  $currentTerm="Term 1" and [GPA - Term 1]>=2, true,
+  $currentTerm="Term 2" and [GPA - Term 2]>=2, true,
+  $currentTerm="Term 3" and [GPA - Term 3]>=2, true,
+  $currentTerm="Term 4" and [GPA - Term 4]>=2, true,
+  $currentTerm="Term 4" and [GPA - Full Year]>=2, true,
+  $currentTerm="Term 4" and $yearsHS=1, true,
+  false);
 
-var bool academicEligibilityHS = true;
-var bool academicEligibilityMS = true;
-var bool academicEligibilityOL = true;
+var bool academicEligibilityMS = If(
+  $academicOverride=true, true,
+  $currentTerm="Term 1" and [# of Fs in Term 1]<=1, true,
+  $currentTerm="Term 2" and [# of Fs in Term 2]<=1, true,
+  $currentTerm="Term 3" and [# of Fs in Term 3]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks]<=1, true,
+  false);
+
+var bool academicEligibilityOL = If(
+  $academicOverride=true, true,
+  $currentTerm="Term 1" and [# of Fs in Term 1]=0, true,
+  $currentTerm="Term 2" and [# of Fs in Term 2]=0, true,
+  $currentTerm="Term 3" and [# of Fs in Term 3]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks]=0, true,
+  false);
 
 
 
@@ -98,6 +143,43 @@ var bool participationForms = If(
 
 
 
+/////////////////////// COVID-19 Vaccination
+
+// Vaccination card (file upload) and date of last shot are required
+// [CURRENT RULES] Students are required to be fully vaccinated 2 months after turning 12 years old.
+// [OLD PHASE IN PERIOD RULES] Effective Dec 1 2021, students aged 12 or older must be vaccinated. Students who will turn 12 between the Sept 20 and Nov 1 inclusive must be vaccinated before Dec 13 2021. Students turning 12 after Nov 1 have two months from their birthday to be vaccinated
+// religious/medical exemptions last for one school year
+// below returns T/F if student has met vaccine requirement. Students not subject to mandate return True
+
+var number medicalExpirationSy = ToNumber(Right([COVID-19 Medical Exemption Expiration], 2)) + 2000;
+var number religiousExpirationSy = ToNumber(Right([COVID-19 Religious Exemption Expiration], 2)) + 2000;
+
+var date birthdayTwelve = AdjustYear([Date of Birth], 12);
+var date gracePeriod = AdjustMonth($birthdayTwelve, 2);
+
+var bool covidVaccineReligiousExemption = If(
+  [COVID-19 Approved Religious Exemption Form]<>"" and $religiousExpirationSy = $currentSy, true, false);
+
+var bool covidVaccineMedicalExemption = If(
+  [COVID-19 Approved Medical Exemption Form]<>"" and $medicalExpirationSy = $currentSy, true, false);
+
+var bool covidVaccineOverride = If(
+  [Override - Covid Vaccine]=true and [Override - Covid Vaccine - Expiration Date]>=Today(), true,
+  false);
+
+var bool covidVaccineCard = If(
+  Today() >= $gracePeriod and [COVID-19 Vaccination Card]<>"" and [Date of Last COVID-19 Shot]<=Today(), true,
+  false);
+
+var bool covidVaccination = If(
+  Today() < $gracePeriod, true,
+  $covidVaccineCard = true, true,
+  $covidVaccineReligiousExemption = true, true,
+  $covidVaccineMedicalExemption = true, true,
+  $covidVaccineOverride = true, true,
+  false
+);
+
 
 /////////////////////// Transfer
 
@@ -106,11 +188,12 @@ var bool hasAllTransferForms = If(
   [Supporting Documentation]<>"" and [Supporting Documentation - Upload Date]>=(Today()-Days(366)), true,
   false);
 
-// Checks if a student is a transfer.
+// Checks if a student has an override
 var bool transferOverride = If(
   [Override - Transfer Status]=true and [Override - Transfer Status - Expiration Date]>=Today(), true,
   false);
 
+// Checks if a student is a transfer
 var bool isTransferStudent = If(
   $transferOverride=true, false,
   $yearsHS<=1, false,
@@ -123,19 +206,19 @@ var bool isTransferStudent = If(
 
 //////////////////// Attendance
 
-// Determines which term's grades should be evaluated based on the current date. Values below are based mark entry deadlines for SY20-21 (both calendars use the same dates). QB looks at exact dates. THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
-// Term 1 = Aug 26 - Nov 6
-// Term 2 = Nov 7 - Jan 29
-// Term 3 = Jan 30 - Apr 12
-// Term 4 = Apr 13 - Jun 30
-// Summer = Jul 1 - Aug 25
+// Determines which term's grades should be evaluated based on the current date. Values below are based mark entry deadlines for SY21-22. QB looks at exact dates. THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
+// Term 1 = Sep 7 - Nov 4
+// Term 2 = Nov 5 - Jan 25
+// Term 3 = Jan 26 - Apr 15
+// Term 4 = Apr 16 - Jun 30
+// Summer = Jul 1 - Sep 6
 // attendance is not factored during summer months while we wait for ASPEN to rollover and feed us zero values for Term 1 of the new school year
 var text currentTermForAttendance = If(
-  Month(Today())=8 and Day(Today())>=26 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=6, "Term 1",
-  Month(Today())=11 and Day(Today())>=7 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=29, "Term 2",
-  Month(Today())=1 and Day(Today())>=30 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=12, "Term 3",
-  Month(Today())=4 and Day(Today())>=13 or Month(Today())=5 or Month(Today())=6, "Term 4",
-  Month(Today())=7 or Month(Today())=8 and Month(Today())<=25, "Summer Term");
+  Month(Today())=9 and Day(Today())>=7 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=4, "Term 1",
+  Month(Today())=11 and Day(Today())>=5 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=25, "Term 2",
+  Month(Today())=1 and Day(Today())>=26 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=15, "Term 3",
+  Month(Today())=4 and Day(Today())>=16 or Month(Today())=5 or Month(Today())=6, "Term 4",
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 and Month(Today())<=6, "Summer Term");
 
 
 // Calculate attendnace eligibility. Students may have <=6 unexcused absences per term.
@@ -159,9 +242,15 @@ var bool attendanceEligibility = If(
 /////////////////////// Overall Status (traditional rules)
 
 var text overallES = If(
+  // ineligible
   $ageEligibilityES = false, "Ineligible",  //really checking for grades 4-5, not age
-  $participationForms = true and $ageEligibilityES = true, "Eligible",
+  // eligible
+  $participationForms = true and $ageEligibilityES = true and $covidVaccination = true, "Eligible",
+  // everything but covid vaccine
+  Today() >= Date(2021,12,1) and $participationForms = true and $ageEligibilityES = true and $covidVaccination = false, "Missing COVID Vaccine",
+  // Ready for AT Review
   $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityES = true, "Ready for AT Review",
+  // Missing Paperwork
   $participationForms = false and $ageEligibilityES = true, "Missing Paperwork",
   // anything unexpected throws error
   "Error"
@@ -169,57 +258,47 @@ var text overallES = If(
 
 var text overallMS = If(
   // age, grades, or semesters will automatically make ineligible
-  $ageEligibilityMS = false or $academicEligibilityMS = false or $semesterEligibilityMS = "ineligible",
-    "Ineligible",
+  $ageEligibilityMS = false or $academicEligibilityMS = false or $semesterEligibilityMS = "ineligible", "Ineligible",
   // everything required to be eligible
-  $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and
-    $semesterEligibilityMS = "eligible", "Eligible",
+  $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible" and $covidVaccination = true, "Eligible",
+  // everything but vaccine
+  Today() >= Date(2021,12,1) and $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible" and $covidVaccination = false, "Missing COVID Vaccine",
   // intermediary statuses
-  $ageEligibilityMS = true and $academicEligibilityMS = true and
-    $semesterEligibilityMS = "requires hand verification", "Age 14 - Requires CO Approval",
-  $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityMS = true and
-    $academicEligibilityMS = true, "Ready for AT Review",
-  $participationForms = false and $ageEligibilityMS = true and $academicEligibilityMS = true,
-    "Missing Paperwork",
+  $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "requires hand verification", "Age 14 - Requires CO Approval",
+  $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityMS = true and $academicEligibilityMS = true, "Ready for AT Review",
+  $participationForms = false and $ageEligibilityMS = true and $academicEligibilityMS = true, "Missing Paperwork",
   // anything unexpected throws error
   "Error"
 );
 
 var text overallHS = If(
   // age, grades, semesters, or attendance will automatically make ineligible
-  $ageEligibilityHS = false or $academicEligibilityHS = false or $semesterEligibilityHS = false
-    or $attendanceEligibility = false, "Ineligible",
-  // everything required to be eligible. 6 things: forms, grades, attendance, age, transfer status, and semesters
-  $participationForms = true and $academicEligibilityHS = true and $attendanceEligibility = true and
-    $ageEligibilityHS = true and $isTransferStudent = false and $semesterEligibilityHS = true, "Eligible",
+  $ageEligibilityHS = false or $semesterEligibilityHS = false or $attendanceEligibility = false, "Ineligible",
+  // everything required to be eligible for W22 onwards. 7 things: forms, grades, attendance, age, transfer status, semesters, and covid vaccination
+  $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $participationForms = true and  $attendanceEligibility = true and $isTransferStudent = false and $covidVaccination = true, "Eligible",
+  // everything but covid vaccine
+  Today() >= Date(2021,12,1) and $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $participationForms = true and  $attendanceEligibility = true and $isTransferStudent = false and $covidVaccination = false, "Missing COVID Vaccine",
   // transfer student - missing Paperwork
-  $ageEligibilityHS = true and $academicEligibilityHS = true and $semesterEligibilityHS = true
-    and $attendanceEligibility = true and $isTransferStudent = true and $hasAllTransferForms = false, "Transfer Student - Missing Paperwork",
-  // missing paperwork
-  $ageEligibilityHS = true and $academicEligibilityHS = true and $semesterEligibilityHS = true
-    and $attendanceEligibility = true and $participationForms = false, "Missing Paperwork",
+  $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $attendanceEligibility = true and $isTransferStudent = true and $hasAllTransferForms = false, "Transfer Student - Missing Paperwork",
+  // transfer student - missing Paperwork
+  $ageEligibilityHS = true and $semesterEligibilityHS = true and $gpaNullsInCurrentTerm = true and $attendanceEligibility = true and $isTransferStudent = true and $hasAllTransferForms = false, "Transfer Student - Missing Paperwork",
   // paperwork ready for review
-  $participationForms = false and [Paperwork Ready for Review] = true and $academicEligibilityHS = true and $attendanceEligibility = true and
-    $ageEligibilityHS = true and $semesterEligibilityHS = true, "Ready for AT Review",
+  $participationForms = false and [Paperwork Ready for Review] = true and $academicEligibilityHS = true and $attendanceEligibility = true and $ageEligibilityHS = true and $semesterEligibilityHS = true, "Ready for AT Review",
+  // missing paperwork
+  $ageEligibilityHS = true and $academicEligibilityHS = true and $semesterEligibilityHS = true and $attendanceEligibility = true and $participationForms = false, "Missing Paperwork",
   // transfer student - ready for review
-  $ageEligibilityHS = true and $academicEligibilityHS = true and $semesterEligibilityHS = true
-    and $attendanceEligibility = true and $participationForms = true and $isTransferStudent = true and $hasAllTransferForms = true, "Transfer Student - On Track",
+  $ageEligibilityHS = true and $academicEligibilityHS = true and $semesterEligibilityHS = true and $attendanceEligibility = true and $participationForms = true and $isTransferStudent = true and $hasAllTransferForms = true, "Transfer Student - On Track",
+  // transfer student - ready for review
+  $ageEligibilityHS = true and $gpaNullsInCurrentTerm = true and $semesterEligibilityHS = true and $attendanceEligibility = true and $participationForms = true and $isTransferStudent = true and $hasAllTransferForms = true, "Transfer Student - On Track",
+  // ineligible - check transcript because of null GPA Values
+  $gpaNullsInCurrentTerm = true, "Ineligible - Null GPA",
+  // full Ineligible
+  $ageEligibilityHS = false or $semesterEligibilityHS = false or $academicEligibilityHS = false or $attendanceEligibility = false, "Ineligible",
   // anything unexpected throws error
   "Error"
 );
 
-var text overallOL = If(
-  // ineligible
-  $ageEligibilityOL = false or $academicEligibilityOL = false, "Ineligible",
-  // eligible
-  $participationForms = true and $ageEligibilityOL = true and $academicEligibilityOL = true, "Eligible",
-  // missing paperwork
-  $participationForms = false and $ageEligibilityOL = true and $academicEligibilityOL = true, "Missing Paperwork",
-  // paperwork ready for review
-  $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityOL = true and $academicEligibilityOL = true, "Missing Paperwork",
-  // anything unexpected throws error
-  "Error"
-);
+
 
 var text plaintextStatus = If(
   // overall overrides that Mike uses for DCSAA Review process
@@ -234,7 +313,6 @@ var text plaintextStatus = If(
   [Competition Level]="HS", $overallHS,
   [Competition Level]="MS", $overallMS,
   [Competition Level]="ES", $overallES,
-  [Competition Level]="OL", $overallOL,
   [Competition Level]="Error", "Error",
   // Throw an error if any unexpected situation occurs. The combinations of different eligibilty criteria should be handled by the $overallXX variables. But any unexpected combination will also cause an error.
   "Error"
