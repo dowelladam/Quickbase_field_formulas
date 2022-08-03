@@ -57,17 +57,17 @@ var text semesterEligibilityMS = If(
 //////////////////// Academics
 
 // Determines which term's grades should be evaluated based on the current date.
-// Values below are based mark entry deadlines for SY21-22
+// Values below are based mark entry deadlines for SY22-23
 // QB generally looks at a new term two weeks after the end-of-term date
-// Term 4 = Jul 1 - Nov 19
-// Term 1 = Nov 20 - Feb 9
-// Term 2 = Feb 10 - May 2
-// Term 3 = May 3 - Jun 30
+// Term 4 = Jul 1 - Nov 20
+// Term 1 = Nov 21 - Feb 8
+// Term 2 = Feb 9 - May 1
+// Term 3 = May 2 - Jun 30
 var text currentTerm = If(
-  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=19, "Term 4",
-  Month(Today())=11 and Day(Today())>=20 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=9, "Term 1",
-  Month(Today())=2 and Day(Today())>=10 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=2, "Term 2",
-  Month(Today())=5 and Day(Today())>=3 or Month(Today())=6, "Term 3");
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=20, "Term 4",
+  Month(Today())=11 and Day(Today())>=21 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=8, "Term 1",
+  Month(Today())=2 and Day(Today())>=9 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=1, "Term 2",
+  Month(Today())=5 and Day(Today())>=2 or Month(Today())=6, "Term 3");
 
 // Check for academic eligibility.
 // HS: Students with a value of null/NA will be determined academically eligible. This is because Aspen typically does not calculate grades from prior schools into the GPA fields until after the student's first full term in DCPS. Any students in the beginning of their first year of HS will be determined academically eligible. This is also necessary in 2021-22 because students may have final term grades of only "P" which means that no GPA can be calculated, but the student should be academically eligible.
@@ -148,10 +148,9 @@ var bool participationForms = If(
 // Vaccination card (file upload) and date of last shot are required
 // [CURRENT RULES] Students are required to be fully vaccinated 2 months after turning 12 years old.
 // [OLD PHASE IN PERIOD RULES] Effective Dec 1 2021, students aged 12 or older must be vaccinated. Students who will turn 12 between the Sept 20 and Nov 1 inclusive must be vaccinated before Dec 13 2021. Students turning 12 after Nov 1 have two months from their birthday to be vaccinated
-// Religious/medical exemptions last for one school year. Forms expire on Aug 1 (this is different from participation packets which expire on July 1).
-// Below returns T/F if student has met vaccine requirement. Students not subject to mandate return True
-
-var number currentSyForCovidExemption = If(Month(Today())<=7, Year(Today()), Month(Today())>=8, Year(Today())+1);
+// religious/medical exemptions last for one school year
+// below returns T/F if student has met vaccine requirement. Students not subject to mandate return True
+// [2022-08-03 Modification] All religious/medical certificates are good through 2022-08-12 (Rainbow Graduation) -- what happens afterwards is TBD
 
 var number medicalExpirationSy = ToNumber(Right([COVID-19 Medical Exemption Expiration], 2)) + 2000;
 var number religiousExpirationSy = ToNumber(Right([COVID-19 Religious Exemption Expiration], 2)) + 2000;
@@ -160,10 +159,10 @@ var date birthdayTwelve = AdjustYear([Date of Birth], 12);
 var date gracePeriod = AdjustMonth($birthdayTwelve, 2);
 
 var bool covidVaccineReligiousExemption = If(
-  [COVID-19 Approved Religious Exemption Form]<>"" and $religiousExpirationSy = $currentSyForCovidExemption, true, false);
+  [COVID-19 Approved Religious Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
 
 var bool covidVaccineMedicalExemption = If(
-  [COVID-19 Approved Medical Exemption Form]<>"" and $medicalExpirationSy = $currentSyForCovidExemption, true, false);
+  [COVID-19 Approved Medical Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
 
 var bool covidVaccineOverride = If(
   [Override - Covid Vaccine]=true and [Override - Covid Vaccine - Expiration Date]>=Today(), true,
@@ -208,18 +207,18 @@ var bool isTransferStudent = If(
 
 //////////////////// Attendance
 
-// Determines which term's grades should be evaluated based on the current date. Values below are based mark entry deadlines for SY21-22. QB looks at exact dates. THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
-// Term 1 = Sep 7 - Nov 4
-// Term 2 = Nov 5 - Jan 25
-// Term 3 = Jan 26 - Apr 15
-// Term 4 = Apr 16 - Jun 30
-// Summer = Jul 1 - Sep 6
+// Determines which term's grades should be evaluated based on the current date. Values below are based mark entry deadlines for SY22-23. QB looks at exact dates. THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
+// Term 1 = Sep 1 - Nov 7
+// Term 2 = Nov 8 - Jan 24
+// Term 3 = Jan 25 - Apr 9
+// Term 4 = Apr 10 - Jun 30
+// Summer = Jul 1 - Aug 30
 // attendance is not factored during summer months while we wait for ASPEN to rollover and feed us zero values for Term 1 of the new school year
 var text currentTermForAttendance = If(
-  Month(Today())=9 and Day(Today())>=7 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=4, "Term 1",
-  Month(Today())=11 and Day(Today())>=5 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=25, "Term 2",
-  Month(Today())=1 and Day(Today())>=26 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=15, "Term 3",
-  Month(Today())=4 and Day(Today())>=16 or Month(Today())=5 or Month(Today())=6, "Term 4",
+  Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=7, "Term 1",
+  Month(Today())=11 and Day(Today())>=8 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=24, "Term 2",
+  Month(Today())=1 and Day(Today())>=25 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=9, "Term 3",
+  Month(Today())=4 and Day(Today())>=10 or Month(Today())=5 or Month(Today())=6, "Term 4",
   Month(Today())=7 or Month(Today())=8 or Month(Today())=9 and Month(Today())<=6, "Summer Term");
 
 
@@ -266,7 +265,7 @@ var text overallMS = If(
   // everything but vaccine
   Today() >= Date(2021,12,1) and $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible" and $covidVaccination = false, "Missing COVID Vaccine",
   // intermediary statuses
-  $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "requires hand verification", "Age 14 - Requires CO Approval",
+  $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "requires hand verification", "Age 14 - Requires DCIAA Approval",
   $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityMS = true and $academicEligibilityMS = true, "Ready for AT Review",
   $participationForms = false and $ageEligibilityMS = true and $academicEligibilityMS = true, "Missing Paperwork",
   // anything unexpected throws error
