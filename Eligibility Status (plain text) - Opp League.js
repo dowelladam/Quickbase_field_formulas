@@ -57,17 +57,17 @@ var text semesterEligibilityMS = If(
 //////////////////// Academics
 
 // Determines which term's grades should be evaluated based on the current date.
-// Values below are based mark entry deadlines for SY21-22
+// Values below are based mark entry deadlines for SY22-23
 // QB generally looks at a new term two weeks after the end-of-term date
-// Term 4 = Jul 1 - Nov 19
-// Term 1 = Nov 20 - Feb 9
-// Term 2 = Feb 10 - May 2
-// Term 3 = May 3 - Jun 30
+// Term 4 = Jul 1 - Nov 20
+// Term 1 = Nov 21 - Feb 8
+// Term 2 = Feb 9 - May 1
+// Term 3 = May 2 - Jun 30
 var text currentTerm = If(
-  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=19, "Term 4",
-  Month(Today())=11 and Day(Today())>=20 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=9, "Term 1",
-  Month(Today())=2 and Day(Today())>=10 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=2, "Term 2",
-  Month(Today())=5 and Day(Today())>=3 or Month(Today())=6, "Term 3");
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=20, "Term 4",
+  Month(Today())=11 and Day(Today())>=21 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=8, "Term 1",
+  Month(Today())=2 and Day(Today())>=9 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=1, "Term 2",
+  Month(Today())=5 and Day(Today())>=2 or Month(Today())=6, "Term 3");
 
 
 // Check for academic eligibility.
@@ -123,6 +123,7 @@ var bool participationForms = If(
 // [OLD PHASE IN PERIOD RULES] Effective Dec 1 2021, students aged 12 or older must be vaccinated. Students who will turn 12 between the Sept 20 and Nov 1 inclusive must be vaccinated before Dec 13 2021. Students turning 12 after Nov 1 have two months from their birthday to be vaccinated
 // religious/medical exemptions last for one school year
 // below returns T/F if student has met vaccine requirement. Students not subject to mandate return True
+// [2022-08-03 Modification] All religious/medical certificates are good through 2022-08-12 (Rainbow Graduation) -- what happens afterwards is TBD
 
 var number medicalExpirationSy = ToNumber(Right([COVID-19 Medical Exemption Expiration], 2)) + 2000;
 var number religiousExpirationSy = ToNumber(Right([COVID-19 Religious Exemption Expiration], 2)) + 2000;
@@ -131,10 +132,10 @@ var date birthdayTwelve = AdjustYear([Date of Birth], 12);
 var date gracePeriod = AdjustMonth($birthdayTwelve, 2);
 
 var bool covidVaccineReligiousExemption = If(
-  [COVID-19 Approved Religious Exemption Form]<>"" and $religiousExpirationSy = $currentSy, true, false);
+  [COVID-19 Approved Religious Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
 
 var bool covidVaccineMedicalExemption = If(
-  [COVID-19 Approved Medical Exemption Form]<>"" and $medicalExpirationSy = $currentSy, true, false);
+  [COVID-19 Approved Medical Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
 
 var bool covidVaccineOverride = If(
   [Override - Covid Vaccine]=true and [Override - Covid Vaccine - Expiration Date]>=Today(), true,
