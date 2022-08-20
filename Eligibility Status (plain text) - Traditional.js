@@ -32,7 +32,7 @@ var number currentSy = If(Month(Today())<=7, Year(Today()), Month(Today())>=8, Y
 var number nextSy = $currentSy + 1;
 
 // Calculates the number of years in HS or MS as a proxy for number of semesters.
-// Assumes continuous enrollment from beginning of First 6th/9th grade year.
+// Assumes continuous enrollment from beginning of First 6th/9th grade year. If this assumption is not true, the student will need a manual override
 var number yearsHS = $currentSy - $firstNinthSy + 1;
 var number yearsMS = $currentSy - $firstSixthSy + 1;
 
@@ -73,13 +73,16 @@ var text currentTerm = If(
 // HS: Students with a value of null/NA will be determined academically eligible. This is because Aspen typically does not calculate grades from prior schools into the GPA fields until after the student's first full term in DCPS. Any students in the beginning of their first year of HS will be determined academically eligible. This is also necessary in 2021-22 because students may have final term grades of only "P" which means that no GPA can be calculated, but the student should be academically eligible.
 // MS: Students will determine by the numeric count fields of [# of Fs]. Students must have 1 of fewer F's to be academically eligible.
 // OL: Students must have no F's on prior report card
+// 20220818 update: academic eligibility is looking at the 'static' 2021-22 fields for Term 4 and Final Year GPA/# of F's. This is a temporary measure to allow Aspen/OCTO to continue experimenting with the datafeed to give us accurate GPA/grades data. The 'static' fields were uploaded from a csv of known correct values. This modification should be reversed after the feed is working. It must be corrected prior to mid-August 2023.
+
 
 var bool gpaNullsInCurrentTerm = If(
   $currentTerm="Term 1" and IsNull([GPA - Term 1]), true,
   $currentTerm="Term 2" and IsNull([GPA - Term 2]), true,
   $currentTerm="Term 3" and IsNull([GPA - Term 3]), true,
-  $currentTerm="Term 4" and IsNull([GPA - Term 4]), true,
-  $currentTerm="Term 4" and IsNull([GPA - Full Year]), true,
+  // 20220818 modification - changed IsNull to Nz because nulls aren't registering properly (I made a mistake of importing null values to 'static' fields on the 'Aspen students' table; because QB read an import, it doesn't actually consider the value to be null)
+  $currentTerm="Term 4" and Nz([GPA - Term 4 - 2021-22 Static])=0, true,
+  $currentTerm="Term 4" and Nz([GPA - Full Year - 2021-22 Static])=0, true,
   false);
 
 var bool academicOverride = If(
@@ -91,8 +94,8 @@ var bool academicEligibilityHS = If(
   $currentTerm="Term 1" and [GPA - Term 1]>=2, true,
   $currentTerm="Term 2" and [GPA - Term 2]>=2, true,
   $currentTerm="Term 3" and [GPA - Term 3]>=2, true,
-  $currentTerm="Term 4" and [GPA - Term 4]>=2, true,
-  $currentTerm="Term 4" and [GPA - Full Year]>=2, true,
+  $currentTerm="Term 4" and [GPA - Term 4 - 2021-22 Static]>=2, true,
+  $currentTerm="Term 4" and [GPA - Full Year - 2021-22 Static]>=2, true,
   $currentTerm="Term 4" and $yearsHS=1, true,
   false);
 
@@ -101,8 +104,8 @@ var bool academicEligibilityMS = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]<=1, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]<=1, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4 - 2021-22 Static]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks - 2021-22 Static]<=1, true,
   false);
 
 var bool academicEligibilityOL = If(
@@ -110,8 +113,8 @@ var bool academicEligibilityOL = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]=0, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]=0, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4 - 2021-22 Static]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks - 2021-22 Static]=0, true,
   false);
 
 
