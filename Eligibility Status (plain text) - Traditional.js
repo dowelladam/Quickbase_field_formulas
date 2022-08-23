@@ -200,9 +200,12 @@ var bool transferOverride = If(
 // Checks if a student is a transfer
 var bool isTransferStudent = If(
   $transferOverride=true, false,
+  // meet requirement if true freshman
   $yearsHS<=1, false,
+  // meet requiremnt if not HS-age student
   [Competition Level] <> "HS", false,
-  $yearsHS>1 and [Date First Enrolled at Current School]>=(Today()-Days(365)), true
+  // meet requirement if enrolled at school for at least one calendar year OR enrolled prior to Aug 31 of prior school year
+  $yearsHS>1 and [Date First Enrolled at Current School]>=(Today()-Days(365)) and [Date First Enrolled at Current School]>= Date($currentSY - 2, 8, 31), true
   );
 
 

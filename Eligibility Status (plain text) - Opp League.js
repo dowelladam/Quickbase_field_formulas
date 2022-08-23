@@ -164,18 +164,21 @@ var bool hasAllTransferForms = If(
   [Supporting Documentation]<>"" and [Supporting Documentation - Upload Date]>=(Today()-Days(366)), true,
   false);
 
-// Checks if a student is a transfer.
+// Checks if a student has an override
 var bool transferOverride = If(
   [Override - Transfer Status]=true and [Override - Transfer Status - Expiration Date]>=Today(), true,
   false);
 
+// Checks if a student is a transfer
 var bool isTransferStudent = If(
   $transferOverride=true, false,
+  // meet requirement if true freshman
   $yearsHS<=1, false,
+  // meet requiremnt if not HS-age student
   [Competition Level] <> "HS", false,
-  $yearsHS>1 and [Date First Enrolled at Current School]>=(Today()-Days(365)), true
+  // meet requirement if enrolled at school for at least one calendar year OR enrolled prior to Aug 31 of prior school year
+  $yearsHS>1 and [Date First Enrolled at Current School]>=(Today()-Days(365)) and [Date First Enrolled at Current School]>= Date($currentSY - 2, 8, 31), true
   );
-
 
 
 
