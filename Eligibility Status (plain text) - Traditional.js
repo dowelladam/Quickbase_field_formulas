@@ -146,43 +146,6 @@ var bool participationForms = If(
 
 
 
-/////////////////////// COVID-19 Vaccination
-
-// Vaccination card (file upload) and date of last shot are required
-// [CURRENT RULES] Students are required to be fully vaccinated 2 months after turning 12 years old.
-// [OLD PHASE IN PERIOD RULES] Effective Dec 1 2021, students aged 12 or older must be vaccinated. Students who will turn 12 between the Sept 20 and Nov 1 inclusive must be vaccinated before Dec 13 2021. Students turning 12 after Nov 1 have two months from their birthday to be vaccinated
-// religious/medical exemptions last for one school year
-// below returns T/F if student has met vaccine requirement. Students not subject to mandate return True
-// [2022-08-03 Modification] All religious/medical certificates are good through 2022-08-12 (Rainbow Graduation) -- what happens afterwards is TBD
-
-var number medicalExpirationSy = ToNumber(Right([COVID-19 Medical Exemption Expiration], 2)) + 2000;
-var number religiousExpirationSy = ToNumber(Right([COVID-19 Religious Exemption Expiration], 2)) + 2000;
-
-var date birthdayTwelve = AdjustYear([Date of Birth], 12);
-var date gracePeriod = AdjustMonth($birthdayTwelve, 2);
-
-var bool covidVaccineReligiousExemption = If(
-  [COVID-19 Approved Religious Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
-
-var bool covidVaccineMedicalExemption = If(
-  [COVID-19 Approved Medical Exemption Form]<>"" and Today() <= ToDate("08-12-2022"), true, false);
-
-var bool covidVaccineOverride = If(
-  [Override - Covid Vaccine]=true and [Override - Covid Vaccine - Expiration Date]>=Today(), true,
-  false);
-
-var bool covidVaccineCard = If(
-  Today() >= $gracePeriod and [COVID-19 Vaccination Card]<>"" and [Date of Last COVID-19 Shot]<=Today(), true,
-  false);
-
-var bool covidVaccination = If(
-  Today() < $gracePeriod, true,
-  $covidVaccineCard = true, true,
-  $covidVaccineReligiousExemption = true, true,
-  $covidVaccineMedicalExemption = true, true,
-  $covidVaccineOverride = true, true,
-  false
-);
 
 
 /////////////////////// Transfer
@@ -252,9 +215,7 @@ var text overallES = If(
   // ineligible
   $ageEligibilityES = false, "Ineligible",  //really checking for grades 4-5, not age
   // eligible
-  $participationForms = true and $ageEligibilityES = true and $covidVaccination = true, "Eligible",
-  // everything but covid vaccine
-  Today() >= Date(2021,12,1) and $participationForms = true and $ageEligibilityES = true and $covidVaccination = false, "Missing COVID Vaccine",
+  $participationForms = true and $ageEligibilityES = true, "Eligible",
   // Ready for AT Review
   $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityES = true, "Ready for AT Review",
   // Missing Paperwork
@@ -267,9 +228,7 @@ var text overallMS = If(
   // age, grades, or semesters will automatically make ineligible
   $ageEligibilityMS = false or $academicEligibilityMS = false or $semesterEligibilityMS = "ineligible", "Ineligible",
   // everything required to be eligible
-  $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible" and $covidVaccination = true, "Eligible",
-  // everything but vaccine
-  Today() >= Date(2021,12,1) and $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible" and $covidVaccination = false, "Missing COVID Vaccine",
+  $participationForms = true and $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "eligible", "Eligible",
   // intermediary statuses
   $ageEligibilityMS = true and $academicEligibilityMS = true and $semesterEligibilityMS = "requires hand verification", "Age 14 - Requires DCIAA Approval",
   $participationForms = false and [Paperwork Ready for Review] = true and $ageEligibilityMS = true and $academicEligibilityMS = true, "Ready for AT Review",
@@ -281,10 +240,8 @@ var text overallMS = If(
 var text overallHS = If(
   // age, grades, semesters, or attendance will automatically make ineligible
   $ageEligibilityHS = false or $semesterEligibilityHS = false or $attendanceEligibility = false, "Ineligible",
-  // everything required to be eligible for W22 onwards. 7 things: forms, grades, attendance, age, transfer status, semesters, and covid vaccination
-  $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $participationForms = true and  $attendanceEligibility = true and $isTransferStudent = false and $covidVaccination = true, "Eligible",
-  // everything but covid vaccine
-  Today() >= Date(2021,12,1) and $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $participationForms = true and  $attendanceEligibility = true and $isTransferStudent = false and $covidVaccination = false, "Missing COVID Vaccine",
+  // everything required to be eligible for W22 onwards. 7 things: forms, grades, attendance, age, transfer status, semesters
+  $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $participationForms = true and  $attendanceEligibility = true and $isTransferStudent = false, "Eligible",
   // transfer student - missing Paperwork
   $ageEligibilityHS = true and $semesterEligibilityHS = true and $academicEligibilityHS = true and $attendanceEligibility = true and $isTransferStudent = true and $hasAllTransferForms = false, "Transfer Student - Missing Paperwork",
   // transfer student - missing Paperwork

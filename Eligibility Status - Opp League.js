@@ -13,8 +13,6 @@ If(
     "<span style=\"color:#b30000;font-weight:bold;\">"&"Ineligible - Must Apply for DCSAA Review"&"</span>",
   [Eligibility Status (plain text) - Opp League]="Ineligible - Ready for DCSAA Review",
     "<span style=\"color:#b30000;font-weight:bold;\">"&"Ineligible - Ready for DCSAA Review"&"</span>",
-  [Eligibility Status (plain text) - Opp League]="Missing COVID Vaccine",
-    "<span style=\"color:#ff8000;font-weight:bold;\">"&"Missing COVID Vaccine"&"</span>",
   [Eligibility Status (plain text) - Opp League]="Ready for AT Review",
     "<span style=\"color:#ff8000;font-weight:bold;\">"&"Ready for AT Review"&"</span>",
   [Eligibility Status (plain text) - Opp League]="Missing Paperwork",

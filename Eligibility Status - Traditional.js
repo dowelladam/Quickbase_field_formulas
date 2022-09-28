@@ -5,8 +5,6 @@ If(
     "<span style=\"color:#e60000;font-weight:bold;\">"&"Ineligible - Null GPA"&"</span>",
   [Eligibility Status (plain text) - Traditional]="Eligible",
     "<span style=\"color:#009900;font-weight:bold;\">"&"Eligible"&"</span>",
-  [Eligibility Status (plain text) - Traditional]="Missing COVID Vaccine",
-    "<span style=\"color:#ff8000;font-weight:bold;\">"&"Missing COVID Vaccine"&"</span>",
   [Eligibility Status (plain text) - Traditional]="Ineligible - Denied by DCIAA",
     "<span style=\"color:#b30000;font-weight:bold;\">"&"Ineligible - Denied by DCIAA"&"</span>",
   [Eligibility Status (plain text) - Traditional]="Ineligible - Denied by DCSAA",
