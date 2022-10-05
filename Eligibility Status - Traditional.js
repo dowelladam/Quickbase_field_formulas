@@ -23,8 +23,8 @@ If(
     "<span style=\"color:#0066FF;font-weight:bold;\">"&"Transfer Student - Missing Paperwork"&"</span>",
   [Eligibility Status (plain text) - Traditional]="Transfer Student - On Track",
     "<span style=\"color:#003d99;font-weight:bold;\">"&"Transfer Student - On Track"&"</span>",
-  [Eligibility Status (plain text) - Traditional]="Age 14 - Requires CO Approval",
-    "<span style=\"color:#c1b922;font-weight:bold;\">"&"Age 14 - Requires CO Approval"&"</span>",
+  [Eligibility Status (plain text) - Traditional]="Age 14 - Requires DCIAA Approval",
+    "<span style=\"color:#c1b922;font-weight:bold;\">"&"Age 14 - Requires DCIAA Approval"&"</span>",
   [Eligibility Status (plain text) - Traditional]="Error",
     "<span style=\"color:#808080;font-weight:bold;\">"&"Error"&"</span>"
 )
