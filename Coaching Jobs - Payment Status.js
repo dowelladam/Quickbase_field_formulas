@@ -149,7 +149,7 @@ var bool sentToOCFO = If(IsNull([Submitted to OCFO]), false, true);
 // Part 4: Final Composition
 
 var text status = If(
-  [Position Name] = "Volunteer Coach", "6 - Volunteer",
+  [Position Name] = "Volunteer coach", "6 - Volunteer",
   [Denied Payment?] = true, "5 - Denied Payment",
   $sentToOCFO = true, "4 - Submitted to OCFO",
   [Requires Certifications?] = true and $allCertsNow = false and $allCertsByDeadline = false,
