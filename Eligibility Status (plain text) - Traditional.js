@@ -60,13 +60,13 @@ var text semesterEligibilityMS = If(
 // Values below are based mark entry deadlines for SY22-23
 // QB generally looks at a new term two weeks after the end-of-term date
 // Term 4 = Jul 1 - Nov 27
-// Term 1 = Nov 28 - Feb 8
-// Term 2 = Feb 9 - May 1
+// Term 1 = Nov 28 - Feb 11
+// Term 2 = Feb 12 - May 1
 // Term 3 = May 2 - Jun 30
 var text currentTerm = If(
   Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=27, "Term 4",
-  Month(Today())=11 and Day(Today())>=28 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=8, "Term 1",
-  Month(Today())=2 and Day(Today())>=9 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=1, "Term 2",
+  Month(Today())=11 and Day(Today())>=28 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=11, "Term 1",
+  Month(Today())=2 and Day(Today())>=12 or Month(Today())=3  or Month(Today())=4 or Month(Today())=5 and Day(Today())<=1, "Term 2",
   Month(Today())=5 and Day(Today())>=2 or Month(Today())=6, "Term 3");
 
 // Check for academic eligibility.
