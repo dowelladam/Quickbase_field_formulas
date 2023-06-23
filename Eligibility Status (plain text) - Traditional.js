@@ -57,17 +57,17 @@ var text semesterEligibilityMS = If(
 //////////////////// Academics
 
 // Determines which term's grades should be evaluated based on the current date.
-// Values below are based mark entry deadlines for SY22-23
-// QB generally looks at a new term two weeks after the end-of-term date
-// Term 4 = Jul 1 - Nov 27
-// Term 1 = Nov 28 - Feb 11
-// Term 2 = Feb 12 - Apr 28
-// Term 3 = Apr 29 - Jun 30
+// Values below are based mark entry deadlines for SY23-24
+// QB generally looks at a new term 10 school days after the end-of-term date
+// Term 4 = Jul 1 - Nov 18
+// Term 1 = Nov 19 - Feb 10
+// Term 2 = Feb 11 - Apr 27
+// Term 3 = Apr 28 - Jun 30
 var text currentTerm = If(
-  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=27, "Term 4",
-  Month(Today())=11 and Day(Today())>=28 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=11, "Term 1",
-  Month(Today())=2 and Day(Today())>=12 or Month(Today())=3  or Month(Today())=4 and Day(Today())<=28, "Term 2",
-  Month(Today())=4 and Day(Today())>=29 or Month(Today())=5 or Month(Today())=6, "Term 3");
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=18, "Term 4",
+  Month(Today())=11 and Day(Today())>=19 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=10, "Term 1",
+  Month(Today())=2 and Day(Today())>=11 or Month(Today())=3  or Month(Today())=4 and Day(Today())<=27, "Term 2",
+  Month(Today())=4 and Day(Today())>=28 or Month(Today())=5 or Month(Today())=6, "Term 3");
 
 // Check for academic eligibility.
 // HS: Students with a value of null/NA will be determined academically eligible. This is because Aspen typically does not calculate grades from prior schools into the GPA fields until after the student's first full term in DCPS. Any students in the beginning of their first year of HS will be determined academically eligible. This is also necessary in 2021-22 because students may have final term grades of only "P" which means that no GPA can be calculated, but the student should be academically eligible.
@@ -176,18 +176,20 @@ var bool isTransferStudent = If(
 
 //////////////////// Attendance
 
-// Determines which term's grades should be evaluated based on the current date. Values below are based mark entry deadlines for SY22-23. QB looks at exact dates. THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
-// Term 1 = Sep 1 - Nov 7
-// Term 2 = Nov 8 - Jan 24
-// Term 3 = Jan 25 - Apr 9
-// Term 4 = Apr 10 - Jun 30
+// Determines which term's grades should be evaluated based on the current date.
+// Values below are based mark entry deadlines for SY23-24. QB looks at exact dates.
+// THESE ARE DIFFERENT TERM DATES THAN WHAT'S USED FOR ACADEMIC ELIGIBILITY.
+// Term 1 = Sep 1 - Nov 2
+// Term 2 = Nov 3 - Jan 25
+// Term 3 = Jan 26 - Apr 4
+// Term 4 = Apr 5 - Jun 30
 // Summer = Jul 1 - Aug 30
 // attendance is not factored during summer months while we wait for ASPEN to rollover and feed us zero values for Term 1 of the new school year
 var text currentTermForAttendance = If(
-  Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=7, "Term 1",
-  Month(Today())=11 and Day(Today())>=8 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=24, "Term 2",
-  Month(Today())=1 and Day(Today())>=25 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=9, "Term 3",
-  Month(Today())=4 and Day(Today())>=10 or Month(Today())=5 or Month(Today())=6, "Term 4",
+  Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=2, "Term 1",
+  Month(Today())=11 and Day(Today())>=3 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=25, "Term 2",
+  Month(Today())=1 and Day(Today())>=26 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=4, "Term 3",
+  Month(Today())=5 and Day(Today())>=10 or Month(Today())=5 or Month(Today())=6, "Term 4",
   Month(Today())=7 or Month(Today())=8 or Month(Today())=9 and Month(Today())<=6, "Summer Term");
 
 
