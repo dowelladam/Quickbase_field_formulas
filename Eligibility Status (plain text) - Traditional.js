@@ -81,8 +81,8 @@ var bool gpaNullsInCurrentTerm = If(
   $currentTerm="Term 2" and IsNull([GPA - Term 2]), true,
   $currentTerm="Term 3" and IsNull([GPA - Term 3]), true,
   // 20220818 modification - changed IsNull to Nz because nulls aren't registering properly (I made a mistake of importing null values to 'static' fields on the 'Aspen students' table; because QB read an import, it doesn't actually consider the value to be null)
-  $currentTerm="Term 4" and Nz([GPA - Term 4 - 2021-22 Static])=0, true,
-  $currentTerm="Term 4" and Nz([GPA - Full Year - 2021-22 Static])=0, true,
+  $currentTerm="Term 4" and Nz([GPA - Term 4 - 2022-23 Static])=0, true,
+  $currentTerm="Term 4" and Nz([GPA - Full Year - 2022-23 Static])=0, true,
   false);
 
 var bool academicOverride = If(
@@ -94,8 +94,8 @@ var bool academicEligibilityHS = If(
   $currentTerm="Term 1" and [GPA - Term 1]>=2, true,
   $currentTerm="Term 2" and [GPA - Term 2]>=2, true,
   $currentTerm="Term 3" and [GPA - Term 3]>=2, true,
-  $currentTerm="Term 4" and [GPA - Term 4 - 2021-22 Static]>=2, true,
-  $currentTerm="Term 4" and [GPA - Full Year - 2021-22 Static]>=2, true,
+  $currentTerm="Term 4" and [GPA - Term 4 - 2022-23 Static]>=2, true,
+  $currentTerm="Term 4" and [GPA - Full Year - 2022-23 Static]>=2, true,
   $currentTerm="Term 4" and $yearsHS=1, true,
   false);
 
@@ -104,8 +104,8 @@ var bool academicEligibilityMS = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]<=1, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]<=1, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4 - 2021-22 Static]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks - 2021-22 Static]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4 - 2022-23 Static]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks - 2022-23 Static]<=1, true,
   false);
 
 var bool academicEligibilityOL = If(
@@ -113,8 +113,8 @@ var bool academicEligibilityOL = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]=0, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]=0, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4 - 2021-22 Static]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks - 2021-22 Static]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4 - 2022-23 Static]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks - 2022-23 Static]=0, true,
   false);
 
 
