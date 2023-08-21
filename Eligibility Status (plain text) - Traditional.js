@@ -104,8 +104,8 @@ var bool academicEligibilityMS = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]<=1, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]<=1, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4 - 2022-23 Static]<=1, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks - 2022-23 Static]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4]<=1, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks]<=1, true,
   false);
 
 var bool academicEligibilityOL = If(
@@ -113,8 +113,8 @@ var bool academicEligibilityOL = If(
   $currentTerm="Term 1" and [# of Fs in Term 1]=0, true,
   $currentTerm="Term 2" and [# of Fs in Term 2]=0, true,
   $currentTerm="Term 3" and [# of Fs in Term 3]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Term 4 - 2022-23 Static]=0, true,
-  $currentTerm="Term 4" and [# of Fs in Final Marks - 2022-23 Static]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Term 4]=0, true,
+  $currentTerm="Term 4" and [# of Fs in Final Marks]=0, true,
   false);
 
 
