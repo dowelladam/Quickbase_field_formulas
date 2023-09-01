@@ -183,14 +183,14 @@ var bool isTransferStudent = If(
 // Term 2 = Nov 3 - Jan 25
 // Term 3 = Jan 26 - Apr 4
 // Term 4 = Apr 5 - Jun 30
-// Summer = Jul 1 - Aug 30
+// Summer = Jul 1 - Aug 31
 // attendance is not factored during summer months while we wait for ASPEN to rollover and feed us zero values for Term 1 of the new school year
 var text currentTermForAttendance = If(
   Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=2, "Term 1",
   Month(Today())=11 and Day(Today())>=3 or Month(Today())=12 or Month(Today())=1 and Day(Today())<=25, "Term 2",
   Month(Today())=1 and Day(Today())>=26 or Month(Today())=2  or Month(Today())=3 or Month(Today())=4 and Day(Today())<=4, "Term 3",
-  Month(Today())=5 and Day(Today())>=10 or Month(Today())=5 or Month(Today())=6, "Term 4",
-  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 and Month(Today())<=6, "Summer Term");
+  Month(Today())=5 and Day(Today())>=10 or Month(Today())=5 or Month(Today())=3, "Term 4",
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9, "Summer Term");
 
 
 // Calculate attendnace eligibility. Students may have <=6 unexcused absences per term.
@@ -198,15 +198,15 @@ var bool attendanceOverride = If(
   [Override - Absences]=true and [Override - Absences - Expiration Date]>=Today(), true,
   false);
 
+// 2023-09-01 manually providing attendance waiver to all students while Aspen works through datafeed issues. Change numerical target from "999" to "6" when fixed
 var bool attendanceEligibility = If(
   $attendanceOverride=true, true,
-  $currentTermForAttendance="Term 1" and [Unexcused Absences - Term 1]<=6, true,
-  $currentTermForAttendance="Term 2" and [Unexcused Absences - Term 2]<=6, true,
-  $currentTermForAttendance="Term 3" and [Unexcused Absences - Term 3]<=6, true,
-  $currentTermForAttendance="Term 4" and [Unexcused Absences - Term 4]<=6, true,
+  $currentTermForAttendance="Term 1" and [Unexcused Absences - Term 1]<=999, true,
+  $currentTermForAttendance="Term 2" and [Unexcused Absences - Term 2]<=999, true,
+  $currentTermForAttendance="Term 3" and [Unexcused Absences - Term 3]<=999, true,
+  $currentTermForAttendance="Term 4" and [Unexcused Absences - Term 4]<=999, true,
   $currentTermforAttendance="Summer Term", true,
   false);
-
 
 
 
