@@ -198,13 +198,12 @@ var bool attendanceOverride = If(
   [Override - Absences]=true and [Override - Absences - Expiration Date]>=Today(), true,
   false);
 
-// 2023-09-01 manually providing attendance waiver to all students while Aspen works through datafeed issues. Change numerical target from "999" to "6" when fixed
 var bool attendanceEligibility = If(
   $attendanceOverride=true, true,
-  $currentTermForAttendance="Term 1" and [Unexcused Absences - Term 1]<=999, true,
-  $currentTermForAttendance="Term 2" and [Unexcused Absences - Term 2]<=999, true,
-  $currentTermForAttendance="Term 3" and [Unexcused Absences - Term 3]<=999, true,
-  $currentTermForAttendance="Term 4" and [Unexcused Absences - Term 4]<=999, true,
+  $currentTermForAttendance="Term 1" and [Unexcused Absences - Term 1]<=6, true,
+  $currentTermForAttendance="Term 2" and [Unexcused Absences - Term 2]<=6, true,
+  $currentTermForAttendance="Term 3" and [Unexcused Absences - Term 3]<=6, true,
+  $currentTermForAttendance="Term 4" and [Unexcused Absences - Term 4]<=6, true,
   $currentTermforAttendance="Summer Term", true,
   false);
 
