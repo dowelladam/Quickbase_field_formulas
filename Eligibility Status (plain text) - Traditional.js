@@ -162,13 +162,17 @@ var bool transferOverride = If(
 
 // Checks if a student is a transfer
 var bool isTransferStudent = If(
-  $transferOverride=true, false,
-  // meet requirement if true freshman
-  $yearsHS<=1, false,
   // meet requiremnt if not HS-age student
   [Competition Level] <> "HS", false,
-  // meet requirement if enrolled at school for at least one calendar year OR enrolled prior to Aug 31 of prior school year
-  $yearsHS>1 and [Date First Enrolled at Current School]>=(Today()-Days(365)) and [Date First Enrolled at Current School]>= Date($currentSY - 2, 8, 31), true
+  // meet requirement if DCIAA has given a manual waiver
+  $transferOverride=true, false,
+  // meet requirement if true freshman enrolled before Sept 1 of current year
+  $yearsHS<=1 and [Date First Enrolled at Current School]< Date($currentSY - 1, 9, 01), false,
+  // meet requirement if enrolled at school for at least one calendar year
+  [Date First Enrolled at Current School]<(Today()-Days(365)), false,
+  // meet requirement if enrolled before Sept 1 of previous school year (avoids kids needing to sit out for a few weeks in August)
+  [Date First Enrolled at Current School]< Date($currentSY - 2, 8, 01), false,
+  true
   );
 
 
