@@ -47,8 +47,8 @@ var bool semesterEligibilityHS = If(
   $semesterOverride=true or $yearsHS<=4, true,
   false);
 var text semesterEligibilityMS = If(
-  $yearsMS>=4, "ineligible",
   $semesterOverride=true or $age<=13, "eligible",
+  $yearsMS>=4, "ineligible",
   "requires hand verification");
 
 
@@ -167,11 +167,11 @@ var bool isTransferStudent = If(
   // meet requirement if DCIAA has given a manual waiver
   $transferOverride=true, false,
   // meet requirement if true freshman enrolled before Sept 1 of current year
-  $yearsHS<=1 and [Date First Enrolled at Current School]< Date($currentSY - 1, 9, 01), false,
+  $yearsHS<=1 and [Date First Enrolled at Current School]< Date($currentSY - 1, 9, 1), false,
   // meet requirement if enrolled at school for at least one calendar year
   [Date First Enrolled at Current School]<(Today()-Days(365)), false,
   // meet requirement if enrolled before Sept 1 of previous school year (avoids kids needing to sit out for a few weeks in August)
-  [Date First Enrolled at Current School]< Date($currentSY - 2, 8, 01), false,
+  [Date First Enrolled at Current School]< Date($currentSY - 2, 8, 1), false,
   true
   );
 
