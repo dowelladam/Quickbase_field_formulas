@@ -59,13 +59,13 @@ var text semesterEligibilityMS = If(
 // Determines which term's grades should be evaluated based on the current date.
 // Values below are based mark entry deadlines for SY23-24
 // QB generally looks at a new term 10 school days after the end-of-term date
-// Term 4 = Jul 1 - Nov 18
-// Term 1 = Nov 19 - Feb 10
+// Term 4 = Jul 1 - Nov 20
+// Term 1 = Nov 21 - Feb 10
 // Term 2 = Feb 11 - Apr 27
 // Term 3 = Apr 28 - Jun 30
 var text currentTerm = If(
-  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=18, "Term 4",
-  Month(Today())=11 and Day(Today())>=19 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=10, "Term 1",
+  Month(Today())=7 or Month(Today())=8 or Month(Today())=9 or Month(Today())=10 or Month(Today())=11 and Day(Today())<=20, "Term 4",
+  Month(Today())=11 and Day(Today())>=21 or Month(Today())=12 or Month(Today())=1 or Month(Today())=2 and Day(Today())<=10, "Term 1",
   Month(Today())=2 and Day(Today())>=11 or Month(Today())=3  or Month(Today())=4 and Day(Today())<=27, "Term 2",
   Month(Today())=4 and Day(Today())>=28 or Month(Today())=5 or Month(Today())=6, "Term 3");
 
